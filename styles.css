@@ -43,13 +43,52 @@ nav ul li a {
     color: #333;
 }
 
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    flex: 1;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.cta-buttons .cta, .cta-buttons .join-community {
+    text-decoration: none;
+    padding: 15px 30px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.cta {
+    background-color: #ff0076;
+}
+
+.join-community {
+    background-color: #333;
+}
+
 /* Date to Remember */
 .date-to-remember-page .calendar-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
     padding: 20px;
-    flex: 1;
 }
 
 .date-to-remember-page #calendar {
@@ -57,7 +96,6 @@ nav ul li a {
     width: 100%;
 }
 
-/* Modal */
 .date-to-remember-page .modal {
     display: none;
     position: fixed;
@@ -94,6 +132,10 @@ nav ul li a {
     margin-bottom: 10px;
 }
 
+.date-to-remember-page input[type="file"] {
+    margin-bottom: 10px;
+}
+
 .date-to-remember-page button {
     padding: 10px 20px;
     background-color: #ff0076;
@@ -107,24 +149,32 @@ nav ul li a {
     background-color: #e6006b;
 }
 
-/* Other Pages */
-.hero, .daily-verse, .image-grid {
-    padding: 20px;
+.date-to-remember-page .date-list-section {
+    flex: 1;
+    padding-left: 20px;
 }
 
-.daily-verse {
-    text-align: center;
+.date-to-remember-page .date-list-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
 }
 
-.image-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
+.date-to-remember-page .date-list-section ul {
+    list-style: none;
+    padding: 0;
 }
 
-.grid-item img {
-    width: 100%;
-    max-width: 200px;
-    border-radius: 10px;
+.date-to-remember-page .date-list-section ul li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Hide calendar container on other pages */
+#calendar {
+    display: none;
+}
+
+/* Show calendar only on Date to Remember page */
+.date-to-remember-page #calendar {
+    display: block;
 }
