@@ -152,4 +152,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('gallery')) {
         const galleryEl = document.getElementById('gallery');
         const images = [
-            'image1
+            'image1.jpg',
+            'image2.jpg',
+            'image3.jpg'
+            // Add more image paths here
+        ];
+
+        images.forEach(src => {
+            const img = document.createElement('img');
+            img.src = `images/${src}`; // Adjust path as needed
+            img.alt = 'Gallery Image';
+            img.classList.add('grid-item');
+            galleryEl.appendChild(img);
+        });
+    }
+});
