@@ -93,25 +93,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Daily Verse Functionality
     if (document.getElementById('daily-verse')) {
-        // Replace with your API or static verse
         const dailyVerseElement = document.getElementById('daily-verse');
-        
-        // Example static verse (replace with dynamic content if needed)
-        const dailyVerse = "This is a placeholder for the daily verse.";
-        dailyVerseElement.innerText = dailyVerse;
 
-        // If you have an API to fetch the daily verse, use the following code instead:
-        /*
-        fetch('https://api.example.com/daily-verse')
+        // Fetch a random Quran verse from a public API
+        fetch('https://api.quran.com/v4/verses/random')
             .then(response => response.json())
             .then(data => {
-                dailyVerseElement.innerText = data.verse;
+                // Assuming the API response contains a verse in data.data.text
+                const verseText = data.data.text; // Adjust based on actual API response
+                dailyVerseElement.innerText = verseText;
             })
             .catch(error => {
                 console.error('Error fetching daily verse:', error);
                 dailyVerseElement.innerText = "Could not load the daily verse.";
             });
-        */
     }
 
     // Gallery Functionality
