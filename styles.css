@@ -1,9 +1,10 @@
-/* General Styles */
+/* Reset */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
 body {
     font-family: Arial, sans-serif;
     line-height: 1.6;
@@ -19,56 +20,80 @@ header {
     border-bottom: 1px solid #eee;
     padding: 20px;
 }
+
 nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
+
 .logo {
     font-size: 1.5rem;
     font-weight: bold;
 }
+
 nav ul {
     list-style: none;
     display: flex;
     gap: 20px;
 }
+
 nav ul li a {
     text-decoration: none;
     color: #333;
 }
 
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    flex: 1;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.cta-buttons .cta, .cta-buttons .join-community {
+    text-decoration: none;
+    padding: 15px 30px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.cta {
+    background-color: #ff0076;
+}
+
+.join-community {
+    background-color: #333;
+}
+
 /* Date to Remember */
-.date-to-remember-page {
+.calendar-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 20px;
 }
-.date-to-remember-page h2 {
-    margin-bottom: 20px;
-}
 
-/* Calendar Grid */
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 1px;
-    background-color: #ddd;
-    width: 100%;
+#calendar {
     max-width: 900px;
-}
-.calendar-grid .calendar-day {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-}
-.calendar-grid .calendar-day:hover {
-    background-color: #f9f9f9;
+    width: 100%;
 }
 
 /* Modal */
@@ -84,6 +109,7 @@ nav ul li a {
     align-items: center;
     z-index: 1000;
 }
+
 .modal-content {
     background: #fff;
     padding: 20px;
@@ -92,6 +118,7 @@ nav ul li a {
     max-width: 500px;
     position: relative;
 }
+
 .close-btn {
     position: absolute;
     top: 10px;
@@ -99,14 +126,13 @@ nav ul li a {
     font-size: 1.5rem;
     cursor: pointer;
 }
+
 textarea {
     width: 100%;
     height: 100px;
     margin-bottom: 10px;
 }
-input[type="file"] {
-    margin-bottom: 10px;
-}
+
 button {
     padding: 10px 20px;
     background-color: #ff0076;
@@ -115,6 +141,44 @@ button {
     border-radius: 5px;
     cursor: pointer;
 }
+
 button:hover {
     background-color: #e6006b;
+}
+
+/* Daily Verse */
+.daily-verse {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    flex: 1;
+    text-align: center;
+}
+
+.daily-verse blockquote {
+    font-size: 1.8rem;
+}
+
+/* Gallery */
+.image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+.grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.grid-item img {
+    width: 100%;
+    max-width: 200px;
+    border-radius: 10px;
 }
