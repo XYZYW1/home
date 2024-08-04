@@ -1,10 +1,15 @@
 // Initialize Calendar Grid
 function initCalendar() {
     const calendarEl = document.getElementById('calendar');
-    
-    // Generate grid days
     const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-    
+    const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getDay();
+
+    // Add empty cells for days before the start of the month
+    for (let i = 0; i < firstDay; i++) {
+        const emptyEl = document.createElement('div');
+        calendarEl.appendChild(emptyEl);
+    }
+
     for (let day = 1; day <= daysInMonth; day++) {
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
@@ -18,8 +23,17 @@ function initCalendar() {
 // Show Modal
 function showModal(event) {
     const selectedDate = event.target.dataset.date;
+    document.getElementById('selected-date').textContent = selectedDate;
     document.getElementById('modal').style.display = 'flex';
     document.getElementById('save-note').dataset.date = selectedDate;
+
+    // Load existing note if available
+    const existingNote = localStorage.getItem(selectedDate);
+    if (existingNote) {
+        document.getElementById('note').value = existingNote;
+    } else {
+        document.getElementById('note').value = '';
+    }
 }
 
 // Close Modal
@@ -34,24 +48,15 @@ document.getElementById('save-note').addEventListener('click', function() {
     localStorage.setItem(date, note); // Save note to localStorage
 
     document.getElementById('modal').style.display = 'none';
-
+    
     // Optionally update the calendar view here
+    const dayElement = document.querySelector(`.calendar-day[data-date="${date}"]`);
+    if (dayElement) {
+        dayElement.title = note; // Display note as tooltip or use any other method
+    }
 });
-
-// Load Notes on Page Load
-function loadNotes() {
-    const calendarDays = document.querySelectorAll('.calendar-day');
-    calendarDays.forEach(day => {
-        const date = day.dataset.date;
-        const note = localStorage.getItem(date);
-        if (note) {
-            day.title = note; // Display note as tooltip or use any other method
-        }
-    });
-}
 
 // Initialization on page load
 document.addEventListener('DOMContentLoaded', function() {
     initCalendar();
-    loadNotes();
 });
