@@ -90,24 +90,48 @@ document.addEventListener('DOMContentLoaded', () => {
             }));
         }
     }
-
-    // Daily Verse Functionality
-    if (document.getElementById('daily-verse')) {
-        const dailyVerseElement = document.getElementById('daily-verse');
-
-        // Fetch a random Quran verse from a public API
-        fetch('https://api.quran.com/v4/verses/random')
-            .then(response => response.json())
-            .then(data => {
-                // Assuming the API response contains a verse in data.data.text
-                const verseText = data.data.text; // Adjust based on actual API response
-                dailyVerseElement.innerText = verseText;
-            })
-            .catch(error => {
-                console.error('Error fetching daily verse:', error);
-                dailyVerseElement.innerText = "Could not load the daily verse.";
-            });
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.body.classList.contains('daily-verse-page')) {
+        fetchDailyVerse();
     }
+});
+
+function fetchDailyVerse() {
+    // Total number of Surahs in the Quran
+    const totalSurahs = 114;
+
+    // Get a random Surah number between 1 and 114
+    const randomSurah = Math.floor(Math.random() * totalSurahs) + 1;
+
+    // Get a random Ayah number based on the Surah number
+    fetch(`https://myislam.org/api/quran/verses/ayah?surah=${randomSurah}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Randomly select an Ayah from the list of verses
+            const ayahs = data.ayahs;
+            if (ayahs.length > 0) {
+                const randomAyah = ayahs[Math.floor(Math.random() * ayahs.length)];
+                const verseContent = document.getElementById('verse-content');
+                const verse = randomAyah.text; // Example structure
+                const reference = `Surah ${randomAyah.surah} - Ayah ${randomAyah.ayah}`; // Example structure
+                verseContent.innerHTML = `<p>${verse}</p><footer>${reference}</footer>`;
+            } else {
+                document.getElementById('verse-content').innerHTML = 'Unable to fetch verse. Please try again later.';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching verse:', error);
+            document.getElementById('verse-content').innerHTML = 'Unable to fetch verse. Please try again later.';
+        });
+}
+
+    
+    
 
     // Gallery Functionality
     if (document.getElementById('gallery')) {
