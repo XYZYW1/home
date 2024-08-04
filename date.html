@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Date to Remember - Interactive Website</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />
 </head>
 <body>
     <header>
@@ -12,23 +14,20 @@
             <div class="logo">MySite</div>
             <ul>
                 <li><a href="index.html">Home</a></li>
-                <li><a href="daily-verse.html">Daily Verse</a></li>
+                <li><a href="date.html">Date to Remember</a></li>
+                <li><a href="verse.html">Daily Verse</a></li>
                 <li><a href="gallery.html">Gallery</a></li>
-                <li><a href="date-to-remember.html">Date to Remember</a></li>
             </ul>
         </nav>
     </header>
 
-    <main class="date-to-remember-page">
-        <h2>Date to Remember</h2>
-        <div id="calendar" class="calendar-grid"></div>
-
+    <main class="calendar-container">
+        <div id="calendar"></div>
         <div class="modal" id="modal">
             <div class="modal-content">
                 <span class="close-btn" id="close-btn">&times;</span>
-                <h2>Add Note for <span id="selected-date"></span></h2>
+                <h2>Add Note</h2>
                 <textarea id="note" placeholder="Enter your note here..."></textarea>
-                <input type="file" id="file-input" />
                 <button id="save-note">Save Note</button>
             </div>
         </div>
@@ -38,6 +37,8 @@
         <p>&copy; 2024 MySite. All rights reserved.</p>
     </footer>
 
-    <script src="script.js" defer></script>
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
+    <script src="script.js"></script>
 </body>
 </html>
