@@ -1,130 +1,130 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Handle Date to Remember Page
-    if (document.getElementById('calendar')) {
-        const calendarEl = document.getElementById('calendar');
-        const modal = document.getElementById('modal');
-        const closeBtn = document.getElementById('close-btn');
-        const saveEventBtn = document.getElementById('save-event');
-        const eventTitleInput = document.getElementById('event-title');
-        const eventNoteInput = document.getElementById('event-note');
-        const eventImageInput = document.getElementById('event-image');
-        const dateList = document.getElementById('date-list');
-        let currentEvent;
+/* General Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-        // Initialize FullCalendar
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            editable: true,
-            selectable: true,
-            events: JSON.parse(localStorage.getItem('events')) || [],
-            dateClick: function(info) {
-                currentEvent = null;
-                eventTitleInput.value = '';
-                eventNoteInput.value = '';
-                eventImageInput.value = '';
-                modal.style.display = 'flex';
-            },
-            eventClick: function(info) {
-                currentEvent = info.event;
-                eventTitleInput.value = currentEvent.title;
-                eventNoteInput.value = currentEvent.extendedProps.note || '';
-                eventImageInput.value = '';
-                modal.style.display = 'flex';
-            },
-            eventAdd: function(event) {
-                saveEvents();
-            },
-            eventChange: function(event) {
-                saveEvents();
-            },
-            eventRemove: function(event) {
-                saveEvents();
-            }
-        });
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
 
-        calendar.render();
+/* Header */
+header {
+    background-color: white;
+    border-bottom: 1px solid #eee;
+    padding: 20px;
+}
 
-        // Save event function
-        function saveEvents() {
-            const events = calendar.getEvents().map(event => ({
-                title: event.title,
-                start: event.start.toISOString(),
-                end: event.end ? event.end.toISOString() : null,
-                note: event.extendedProps.note || '',
-                image: event.extendedProps.image || ''
-            }));
-            localStorage.setItem('events', JSON.stringify(events));
-            updateDateList();
-        }
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        // Update date list
-        function updateDateList() {
-            dateList.innerHTML = '';
-            calendar.getEvents().forEach(event => {
-                const li = document.createElement('li');
-                li.textContent = event.start.toLocaleDateString();
-                dateList.appendChild(li);
-            });
-        }
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
 
-        // Save event button click
-        saveEventBtn.addEventListener('click', () => {
-            const title = eventTitleInput.value;
-            const note = eventNoteInput.value;
-            const imageFile = eventImageInput.files[0];
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
 
-            if (currentEvent) {
-                currentEvent.setProp('title', title);
-                currentEvent.setExtendedProp('note', note);
-                if (imageFile) {
-                    const reader = new FileReader();
-                    reader.onload = function() {
-                        currentEvent.setExtendedProp('image', reader.result);
-                        saveEvents();
-                    };
-                    reader.readAsDataURL(imageFile);
-                } else {
-                    currentEvent.setExtendedProp('image', '');
-                    saveEvents();
-                }
-            } else {
-                const image = imageFile ? URL.createObjectURL(imageFile) : '';
-                calendar.addEvent({
-                    title,
-                    start: new Date(),
-                    end: new Date(),
-                    extendedProps: { note, image }
-                });
-                saveEvents();
-            }
-            modal.style.display = 'none';
-        });
+nav ul li a {
+    text-decoration: none;
+    color: #333;
+}
 
-        // Close modal
-        closeBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-    }
+/* Date to Remember */
+.date-to-remember-page .calendar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    flex: 1;
+}
 
-    // Handle Daily Verse Page
-    if (document.querySelector('.daily-verse')) {
-        // Example daily verse functionality
-        // You can replace this with your own logic to fetch and display a daily verse
-        const dailyVerse = document.querySelector('.daily-verse blockquote');
-        dailyVerse.textContent = "For God so loved the world, that He gave His one and only Son, that whoever believes in Him shall not perish but have eternal life. - John 3:16";
-    }
+.date-to-remember-page #calendar {
+    max-width: 900px;
+    width: 100%;
+}
 
-    // Handle Gallery Page
-    if (document.querySelector('.image-grid')) {
-        // Example gallery functionality
-        // Add more logic here if you need to load images dynamically
-        console.log("Gallery page loaded");
-    }
+/* Modal */
+.date-to-remember-page .modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
 
-    // Handle Home Page
-    if (document.querySelector('.hero')) {
-        // Example home page functionality
-        // Add more logic here if you need to customize the home page
-        console.log("Home page loaded");
-    }
-});
+.date-to-remember-page .modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    width: 80%;
+    max-width: 500px;
+    position: relative;
+}
+
+.date-to-remember-page .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    cursor: pointer;
+}
+
+.date-to-remember-page textarea {
+    width: 100%;
+    height: 100px;
+    margin-bottom: 10px;
+}
+
+.date-to-remember-page button {
+    padding: 10px 20px;
+    background-color: #ff0076;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.date-to-remember-page button:hover {
+    background-color: #e6006b;
+}
+
+/* Other Pages */
+.hero, .daily-verse, .image-grid {
+    padding: 20px;
+}
+
+.daily-verse {
+    text-align: center;
+}
+
+.image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.grid-item img {
+    width: 100%;
+    max-width: 200px;
+    border-radius: 10px;
+}
