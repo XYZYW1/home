@@ -128,10 +128,6 @@ function fetchDailyVerse() {
             console.error('Error fetching verse:', error);
             document.getElementById('verse-content').innerHTML = 'Unable to fetch verse. Please try again later.';
         });
-}
-
-    
-    
 
     // Gallery Functionality
     if (document.getElementById('gallery')) {
