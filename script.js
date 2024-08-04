@@ -1,62 +1,135 @@
-// Initialize Calendar Grid
-function initCalendar() {
-    const calendarEl = document.getElementById('calendar');
-    const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-    const firstDay = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getDay();
+document.addEventListener('DOMContentLoaded', () => {
+    // Calendar Functionality
+    if (document.getElementById('calendar')) {
+        const calendarEl = document.getElementById('calendar');
+        const modal = document.getElementById('modal');
+        const closeBtn = document.getElementById('close-btn');
+        const saveNoteBtn = document.getElementById('save-note');
+        const noteInput = document.getElementById('note');
+        let currentEvent;
 
-    // Add empty cells for days before the start of the month
-    for (let i = 0; i < firstDay; i++) {
-        const emptyEl = document.createElement('div');
-        calendarEl.appendChild(emptyEl);
+        // Initialize FullCalendar
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            editable: true,
+            selectable: true,
+            events: loadEvents(),
+            dateClick: function(info) {
+                currentEvent = {
+                    date: info.dateStr
+                };
+                showModal();
+            },
+            eventClick: function(info) {
+                currentEvent = {
+                    id: info.event.id,
+                    date: info.event.startStr,
+                    note: info.event.extendedProps.note
+                };
+                noteInput.value = currentEvent.note || '';
+                showModal();
+            }
+        });
+
+        calendar.render();
+
+        // Show modal
+        function showModal() {
+            modal.style.display = 'flex';
+        }
+
+        // Close modal
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Save note
+        saveNoteBtn.addEventListener('click', () => {
+            if (currentEvent) {
+                const note = noteInput.value;
+                if (currentEvent.id) {
+                    // Update existing event
+                    calendar.getEventById(currentEvent.id).setExtendedProp('note', note);
+                } else {
+                    // Add new event
+                    calendar.addEvent({
+                        id: Date.now().toString(),
+                        start: currentEvent.date,
+                        end: currentEvent.date,
+                        extendedProps: {
+                            note: note
+                        }
+                    });
+                }
+                saveEvents();
+                modal.style.display = 'none';
+            }
+        });
+
+        // Save events to local storage
+        function saveEvents() {
+            const events = calendar.getEvents().map(event => ({
+                id: event.id,
+                start: event.startStr,
+                end: event.endStr,
+                note: event.extendedProps.note
+            }));
+            localStorage.setItem('calendarEvents', JSON.stringify(events));
+        }
+
+        // Load events from local storage
+        function loadEvents() {
+            const events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+            return events.map(event => ({
+                id: event.id,
+                start: event.start,
+                end: event.end,
+                extendedProps: {
+                    note: event.note
+                }
+            }));
+        }
     }
 
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dayEl = document.createElement('div');
-        dayEl.className = 'calendar-day';
-        dayEl.textContent = day;
-        dayEl.dataset.date = `${new Date().getFullYear()}-${('0' + (new Date().getMonth() + 1)).slice(-2)}-${('0' + day).slice(-2)}`;
-        dayEl.addEventListener('click', showModal);
-        calendarEl.appendChild(dayEl);
+    // Daily Verse Functionality
+    if (document.getElementById('daily-verse')) {
+        // Replace with your API or static verse
+        const dailyVerseElement = document.getElementById('daily-verse');
+        
+        // Example static verse (replace with dynamic content if needed)
+        const dailyVerse = "This is a placeholder for the daily verse.";
+        dailyVerseElement.innerText = dailyVerse;
+
+        // If you have an API to fetch the daily verse, use the following code instead:
+        /*
+        fetch('https://api.example.com/daily-verse')
+            .then(response => response.json())
+            .then(data => {
+                dailyVerseElement.innerText = data.verse;
+            })
+            .catch(error => {
+                console.error('Error fetching daily verse:', error);
+                dailyVerseElement.innerText = "Could not load the daily verse.";
+            });
+        */
     }
-}
 
-// Show Modal
-function showModal(event) {
-    const selectedDate = event.target.dataset.date;
-    document.getElementById('selected-date').textContent = selectedDate;
-    document.getElementById('modal').style.display = 'flex';
-    document.getElementById('save-note').dataset.date = selectedDate;
+    // Gallery Functionality
+    if (document.getElementById('gallery')) {
+        const galleryEl = document.getElementById('gallery');
+        const images = [
+            'image1.jpg',
+            'image2.jpg',
+            'image3.jpg'
+            // Add more image paths here
+        ];
 
-    // Load existing note if available
-    const existingNote = localStorage.getItem(selectedDate);
-    if (existingNote) {
-        document.getElementById('note').value = existingNote;
-    } else {
-        document.getElementById('note').value = '';
+        images.forEach(src => {
+            const img = document.createElement('img');
+            img.src = `images/${src}`; // Adjust path as needed
+            img.alt = 'Gallery Image';
+            img.classList.add('grid-item');
+            galleryEl.appendChild(img);
+        });
     }
-}
-
-// Close Modal
-document.getElementById('close-btn').addEventListener('click', function() {
-    document.getElementById('modal').style.display = 'none';
-});
-
-// Save Note
-document.getElementById('save-note').addEventListener('click', function() {
-    const date = this.dataset.date;
-    const note = document.getElementById('note').value;
-    localStorage.setItem(date, note); // Save note to localStorage
-
-    document.getElementById('modal').style.display = 'none';
-    
-    // Optionally update the calendar view here
-    const dayElement = document.querySelector(`.calendar-day[data-date="${date}"]`);
-    if (dayElement) {
-        dayElement.title = note; // Display note as tooltip or use any other method
-    }
-});
-
-// Initialization on page load
-document.addEventListener('DOMContentLoaded', function() {
-    initCalendar();
 });
