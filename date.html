@@ -21,19 +21,14 @@
         </nav>
     </header>
 
-    <main class="date-remember">
-        <h2>Date to Remember: <span id="date-to-remember"></span></h2>
-        <div class="calendar-container">
-            <div id="calendar"></div>
-        </div>
-        <!-- Modal for adding/editing notes -->
-        <div id="modal" class="modal">
+    <main class="calendar-container">
+        <div id="calendar"></div>
+        <div class="modal" id="modal">
             <div class="modal-content">
-                <span id="close-btn" class="close-btn">&times;</span>
-                <h2>Add or Edit Note</h2>
-                <input type="text" id="event-title" placeholder="Event Title" />
-                <textarea id="event-note" placeholder="Event Notes"></textarea>
-                <button id="save-event">Save Event</button>
+                <span class="close-btn" id="close-btn">&times;</span>
+                <h2>Add Note</h2>
+                <textarea id="note" placeholder="Enter your note here..."></textarea>
+                <button id="save-note">Save Note</button>
             </div>
         </div>
     </main>
