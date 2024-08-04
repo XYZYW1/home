@@ -1,77 +1,69 @@
-document.addEventListener('DOMContentLoaded', function() {
+// Function for Date to Remember Page
+function initCalendar() {
     const calendarEl = document.getElementById('calendar');
-    const modal = document.getElementById('modal');
-    const closeBtn = document.getElementById('close-btn');
-    const saveBtn = document.getElementById('save-note');
-    const noteTextarea = document.getElementById('note');
-    const fileInput = document.getElementById('file');
-    const noteList = document.getElementById('note-list');
 
     const calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
-        dateClick: function(info) {
-            showModal(info.dateStr);
+        editable: true,
+        selectable: true,
+        select: function(info) {
+            // Handle date selection if needed
+            alert('Selected date: ' + info.startStr);
         },
-        events: function(fetchInfo, successCallback, failureCallback) {
-            const notes = JSON.parse(localStorage.getItem('notes')) || [];
-            successCallback(notes.map(note => ({
-                title: note.text,
-                start: note.date,
-                extendedProps: {
-                    file: note.file
-                }
-            })));
-        }
+        events: [
+            // Example event; replace with your dynamic events if needed
+            {
+                title: 'Sample Event',
+                start: '2024-08-10'
+            }
+        ]
     });
 
     calendar.render();
+}
 
-    function showModal(dateStr) {
-        modal.style.display = 'flex';
-        saveBtn.dataset.date = dateStr;
+// Function for Daily Verse Page
+function loadDailyVerse() {
+    const verseElement = document.querySelector('.daily-verse blockquote');
+    if (verseElement) {
+        verseElement.textContent = "Your daily verse goes here.";
+        // Fetch and display daily verse if needed
     }
+}
 
-    closeBtn.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
+// Function for Gallery Page
+function initGallery() {
+    const galleryItems = [
+        { src: 'image1.jpg', alt: 'Description 1' },
+        { src: 'image2.jpg', alt: 'Description 2' },
+        // Add more images as needed
+    ];
 
-    saveBtn.addEventListener('click', function() {
-        const dateStr = saveBtn.dataset.date;
-        const noteText = noteTextarea.value;
-        const file = fileInput.files[0];
+    const galleryContainer = document.querySelector('.image-grid');
+    if (galleryContainer) {
+        galleryItems.forEach(item => {
+            const imgElement = document.createElement('img');
+            imgElement.src = item.src;
+            imgElement.alt = item.alt;
 
-        if (noteText.trim() !== '' || file) {
-            const notes = JSON.parse(localStorage.getItem('notes')) || [];
-            notes.push({
-                date: dateStr,
-                text: noteText,
-                file: file ? URL.createObjectURL(file) : null
-            });
-            localStorage.setItem('notes', JSON.stringify(notes));
-            calendar.refetchEvents();
-            noteTextarea.value = '';
-            fileInput.value = '';
-            modal.style.display = 'none';
-            updateNoteList();
-        }
-    });
+            const gridItem = document.createElement('div');
+            gridItem.className = 'grid-item';
+            gridItem.appendChild(imgElement);
 
-    function updateNoteList() {
-        const notes = JSON.parse(localStorage.getItem('notes')) || [];
-        noteList.innerHTML = '';
-        notes.forEach(note => {
-            const li = document.createElement('li');
-            li.textContent = `${note.date}: ${note.text}`;
-            if (note.file) {
-                const img = document.createElement('img');
-                img.src = note.file;
-                img.style.maxWidth = '100px';
-                img.style.marginLeft = '10px';
-                li.appendChild(img);
-            }
-            noteList.appendChild(li);
+            galleryContainer.appendChild(gridItem);
         });
     }
+}
 
-    updateNoteList();
+// Initialization on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPage = window.location.pathname;
+
+    if (currentPage.includes('date-to-remember.html')) {
+        initCalendar();
+    } else if (currentPage.includes('daily-verse.html')) {
+        loadDailyVerse();
+    } else if (currentPage.includes('gallery.html')) {
+        initGallery();
+    }
 });
