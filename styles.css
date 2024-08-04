@@ -1,36 +1,19 @@
-/* Calendar Details */
+/* Date to Remember */
 .calendar-container {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     padding: 20px;
 }
 
+.calendar-section {
+    flex: 3;
+    position: relative;
+}
+
 #calendar {
-    max-width: 900px;
-    width: 100%;
+    max-width: 100%;
 }
 
-.calendar-details {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-left: 20px;
-}
-
-.date-list {
-    margin-top: 20px;
-}
-
-.date-list ul {
-    list-style: none;
-    padding: 0;
-}
-
-.date-list li {
-    margin-bottom: 10px;
-}
-
-/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -82,4 +65,24 @@ button {
 
 button:hover {
     background-color: #e6006b;
+}
+
+.date-list-section {
+    flex: 1;
+    padding-left: 20px;
+}
+
+.date-list-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.date-list-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.date-list-section ul li {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
 }
