@@ -1,74 +1,135 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Date to Remember Page (date.html)
-    if (document.querySelector('.date-remember')) {
-        const dateElement = document.getElementById('date-to-remember');
-        const specialDate = new Date('2024-08-05'); // Example special date
-        const today = new Date();
-        
-        // Format special date and today's date
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        dateElement.textContent = today.toDateString() === specialDate.toDateString()
-            ? `Today's Special Date: ${specialDate.toLocaleDateString(undefined, options)}`
-            : `Date to Remember: ${specialDate.toLocaleDateString(undefined, options)}`;
-    }
+    // Calendar Functionality
+    if (document.getElementById('calendar')) {
+        const calendarEl = document.getElementById('calendar');
+        const modal = document.getElementById('modal');
+        const closeBtn = document.getElementById('close-btn');
+        const saveNoteBtn = document.getElementById('save-note');
+        const noteInput = document.getElementById('note');
+        let currentEvent;
 
-    // Daily Verse Page (verse.html)
-    if (document.querySelector('.daily-verse')) {
-        const verses = [
-            "This is the daily verse for today.",
-            "Another inspiring verse for today.",
-            "Today's verse is a source of strength.",
-            "Find peace in the words of wisdom.",
-            "Embrace the new day with a positive thought."
-        ];
-        const verseElement = document.getElementById('daily-verse');
-        
-        // Display a verse based on the day of the week
-        const dayOfWeek = new Date().getDay();
-        verseElement.textContent = verses[dayOfWeek % verses.length];
-    }
-
-    // Gallery Page (gallery.html)
-    if (document.querySelector('.image-grid')) {
-        const galleryImages = [
-            'path-to-image1.jpg',
-            'path-to-image2.jpg',
-            'path-to-image3.jpg',
-            'path-to-image4.jpg',
-            'path-to-image5.jpg'
-        ];
-        const galleryElement = document.querySelector('.image-grid');
-
-        galleryImages.forEach(imagePath => {
-            const imgElement = document.createElement('img');
-            imgElement.src = imagePath;
-            imgElement.alt = 'Gallery Image';
-            imgElement.classList.add('gallery-image');
-            
-            const divElement = document.createElement('div');
-            divElement.classList.add('grid-item');
-            divElement.appendChild(imgElement);
-            galleryElement.appendChild(divElement);
-
-            // Lightbox effect
-            divElement.addEventListener('click', () => {
-                openLightbox(imagePath);
-            });
+        // Initialize FullCalendar
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            editable: true,
+            selectable: true,
+            events: loadEvents(),
+            dateClick: function(info) {
+                currentEvent = {
+                    date: info.dateStr
+                };
+                showModal();
+            },
+            eventClick: function(info) {
+                currentEvent = {
+                    id: info.event.id,
+                    date: info.event.startStr,
+                    note: info.event.extendedProps.note
+                };
+                noteInput.value = currentEvent.note || '';
+                showModal();
+            }
         });
+
+        calendar.render();
+
+        // Show modal
+        function showModal() {
+            modal.style.display = 'flex';
+        }
+
+        // Close modal
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Save note
+        saveNoteBtn.addEventListener('click', () => {
+            if (currentEvent) {
+                const note = noteInput.value;
+                if (currentEvent.id) {
+                    // Update existing event
+                    calendar.getEventById(currentEvent.id).setExtendedProp('note', note);
+                } else {
+                    // Add new event
+                    calendar.addEvent({
+                        id: Date.now().toString(),
+                        start: currentEvent.date,
+                        end: currentEvent.date,
+                        extendedProps: {
+                            note: note
+                        }
+                    });
+                }
+                saveEvents();
+                modal.style.display = 'none';
+            }
+        });
+
+        // Save events to local storage
+        function saveEvents() {
+            const events = calendar.getEvents().map(event => ({
+                id: event.id,
+                start: event.startStr,
+                end: event.endStr,
+                note: event.extendedProps.note
+            }));
+            localStorage.setItem('calendarEvents', JSON.stringify(events));
+        }
+
+        // Load events from local storage
+        function loadEvents() {
+            const events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+            return events.map(event => ({
+                id: event.id,
+                start: event.start,
+                end: event.end,
+                extendedProps: {
+                    note: event.note
+                }
+            }));
+        }
     }
 
-    // Lightbox Functionality
-    function openLightbox(imageSrc) {
-        const lightbox = document.createElement('div');
-        lightbox.classList.add('lightbox');
-        const imgElement = document.createElement('img');
-        imgElement.src = imageSrc;
-        imgElement.alt = 'Lightbox Image';
-        lightbox.appendChild(imgElement);
-        document.body.appendChild(lightbox);
+    // Daily Verse Functionality
+    if (document.getElementById('daily-verse')) {
+        // Replace with your API or static verse
+        const dailyVerseElement = document.getElementById('daily-verse');
+        
+        // Example static verse (replace with dynamic content if needed)
+        const dailyVerse = "This is a placeholder for the daily verse.";
+        dailyVerseElement.innerText = dailyVerse;
 
-        lightbox.addEventListener('click', () => {
-            lightbox.remove();
+        // If you have an API to fetch the daily verse, use the following code instead:
+        /*
+        fetch('https://api.example.com/daily-verse')
+            .then(response => response.json())
+            .then(data => {
+                dailyVerseElement.innerText = data.verse;
+            })
+            .catch(error => {
+                console.error('Error fetching daily verse:', error);
+                dailyVerseElement.innerText = "Could not load the daily verse.";
+            });
+        */
+    }
+
+    // Gallery Functionality
+    if (document.getElementById('gallery')) {
+        const galleryEl = document.getElementById('gallery');
+        const images = [
+            'image1.jpg',
+            'image2.jpg',
+            'image3.jpg'
+            // Add more image paths here
+        ];
+
+        images.forEach(src => {
+            const img = document.createElement('img');
+            img.src = `images/${src}`; // Adjust path as needed
+            img.alt = 'Gallery Image';
+            img.classList.add('grid-item');
+            galleryEl.appendChild(img);
         });
     }
 });
