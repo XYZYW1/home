@@ -1,20 +1,102 @@
-/* Date to Remember */
-.calendar-container {
+/* Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #f4f4f4;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    background-color: white;
+    border-bottom: 1px solid #eee;
     padding: 20px;
 }
 
-.calendar-section {
-    flex: 3;
-    position: relative;
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-#calendar {
-    max-width: 100%;
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
 }
 
-.modal {
+nav ul {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #333;
+}
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 50px 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    flex: 1;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.cta-buttons .cta, .cta-buttons .join-community {
+    text-decoration: none;
+    padding: 15px 30px;
+    border-radius: 5px;
+    color: #fff;
+}
+
+.cta {
+    background-color: #ff0076;
+}
+
+.join-community {
+    background-color: #333;
+}
+
+/* Date to Remember */
+.date-to-remember-page .calendar-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.date-to-remember-page #calendar {
+    max-width: 900px;
+    width: 100%;
+}
+
+.date-to-remember-page .modal {
     display: none;
     position: fixed;
     top: 0;
@@ -27,7 +109,7 @@
     z-index: 1000;
 }
 
-.modal-content {
+.date-to-remember-page .modal-content {
     background: #fff;
     padding: 20px;
     border-radius: 8px;
@@ -36,7 +118,7 @@
     position: relative;
 }
 
-.close-btn {
+.date-to-remember-page .close-btn {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -44,17 +126,13 @@
     cursor: pointer;
 }
 
-textarea {
+.date-to-remember-page textarea {
     width: 100%;
     height: 100px;
     margin-bottom: 10px;
 }
 
-input[type="file"] {
-    margin-bottom: 10px;
-}
-
-button {
+.date-to-remember-page button {
     padding: 10px 20px;
     background-color: #ff0076;
     color: #fff;
@@ -63,26 +141,68 @@ button {
     cursor: pointer;
 }
 
-button:hover {
+.date-to-remember-page button:hover {
     background-color: #e6006b;
 }
 
-.date-list-section {
+.date-to-remember-page .date-list-section {
     flex: 1;
     padding-left: 20px;
 }
 
-.date-list-section h2 {
+.date-to-remember-page .date-list-section h2 {
     font-size: 1.5rem;
     margin-bottom: 10px;
 }
 
-.date-list-section ul {
+.date-to-remember-page .date-list-section ul {
     list-style: none;
     padding: 0;
 }
 
-.date-list-section ul li {
+.date-to-remember-page .date-list-section ul li {
     padding: 10px;
     border-bottom: 1px solid #ddd;
+}
+
+/* Daily Verse */
+.daily-verse {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    border-bottom: 1px solid #eee;
+    flex: 1;
+    text-align: center;
+}
+
+.daily-verse blockquote {
+    font-size: 1.8rem;
+}
+
+/* Gallery */
+.image-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+
+.grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.grid-item img {
+    width: 100%;
+    max-width: 200px;
+    border-radius: 10px;
+}
+
+/* Hide calendar container on other pages */
+#calendar, .date-to-remember-page .calendar-container {
+    display: none;
 }
