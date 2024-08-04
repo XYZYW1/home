@@ -53,21 +53,22 @@ nav ul li a {
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-gap: 1px;
+    gap: 1px;
     background-color: #ddd;
     width: 100%;
     max-width: 900px;
 }
-.calendar-grid div {
+.calendar-grid .calendar-day {
     background-color: #fff;
     border: 1px solid #ddd;
     padding: 10px;
     text-align: center;
-    position: relative;
-}
-.calendar-grid div:hover {
-    background-color: #f9f9f9;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+.calendar-grid .calendar-day:hover {
+    background-color: #f9f9f9;
 }
 
 /* Modal */
@@ -101,6 +102,9 @@ nav ul li a {
 textarea {
     width: 100%;
     height: 100px;
+    margin-bottom: 10px;
+}
+input[type="file"] {
     margin-bottom: 10px;
 }
 button {
