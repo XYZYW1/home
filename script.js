@@ -4,10 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const calendarEl = document.getElementById('calendar');
         const modal = document.getElementById('modal');
         const closeBtn = document.getElementById('close-btn');
-        const saveDetailsBtn = document.getElementById('save-details');
-        const noteInput = document.getElementById('note');
-        const imageInput = document.getElementById('image-input');
-        const dateList = document.getElementById('date-list-items');
+        const saveEventBtn = document.getElementById('save-event');
+        const eventTitleInput = document.getElementById('event-title');
+        const eventNoteInput = document.getElementById('event-note');
+        const eventImageInput = document.getElementById('event-image');
+        const dateList = document.getElementById('date-list');
         let currentEvent;
 
         // Initialize FullCalendar
@@ -26,12 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentEvent = {
                     id: info.event.id,
                     date: info.event.startStr,
+                    title: info.event.title,
                     note: info.event.extendedProps.note,
                     image: info.event.extendedProps.image
                 };
-                noteInput.value = currentEvent.note || '';
+                eventTitleInput.value = currentEvent.title || '';
+                eventNoteInput.value = currentEvent.note || '';
                 if (currentEvent.image) {
-                    imageInput.dataset.image = currentEvent.image;
+                    eventImageInput.dataset.url = currentEvent.image;
                 }
                 showModal();
             }
@@ -49,53 +52,43 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.style.display = 'none';
         });
 
-        // Save details
-        saveDetailsBtn.addEventListener('click', () => {
+        // Save event
+        saveEventBtn.addEventListener('click', () => {
             if (currentEvent) {
-                const note = noteInput.value;
-                const imageFile = imageInput.files[0];
-                let image = currentEvent.image || '';
+                const title = eventTitleInput.value;
+                const note = eventNoteInput.value;
+                const image = eventImageInput.files[0] ? URL.createObjectURL(eventImageInput.files[0]) : eventImageInput.dataset.url;
 
-                if (imageFile) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        image = event.target.result;
-                        saveEvent(note, image);
-                    };
-                    reader.readAsDataURL(imageFile);
+                if (currentEvent.id) {
+                    // Update existing event
+                    const event = calendar.getEventById(currentEvent.id);
+                    event.setProp('title', title);
+                    event.setExtendedProp('note', note);
+                    event.setExtendedProp('image', image);
                 } else {
-                    saveEvent(note, image);
+                    // Add new event
+                    calendar.addEvent({
+                        id: Date.now().toString(),
+                        title: title,
+                        start: currentEvent.date,
+                        end: currentEvent.date,
+                        extendedProps: {
+                            note: note,
+                            image: image
+                        }
+                    });
                 }
+                saveEvents();
+                updateDateList();
+                modal.style.display = 'none';
             }
         });
-
-        function saveEvent(note, image) {
-            if (currentEvent.id) {
-                // Update existing event
-                const event = calendar.getEventById(currentEvent.id);
-                event.setExtendedProp('note', note);
-                event.setExtendedProp('image', image);
-            } else {
-                // Add new event
-                calendar.addEvent({
-                    id: Date.now().toString(),
-                    start: currentEvent.date,
-                    end: currentEvent.date,
-                    extendedProps: {
-                        note: note,
-                        image: image
-                    }
-                });
-            }
-            saveEvents();
-            updateDateList();
-            modal.style.display = 'none';
-        }
 
         // Save events to local storage
         function saveEvents() {
             const events = calendar.getEvents().map(event => ({
                 id: event.id,
+                title: event.title,
                 start: event.startStr,
                 end: event.endStr,
                 note: event.extendedProps.note,
@@ -109,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
             return events.map(event => ({
                 id: event.id,
+                title: event.title,
                 start: event.start,
                 end: event.end,
                 extendedProps: {
@@ -118,18 +112,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }));
         }
 
-        // Update the list of dates to remember
+        // Update the list of dates
         function updateDateList() {
             dateList.innerHTML = '';
-            const events = calendar.getEvents();
-            events.forEach(event => {
+            calendar.getEvents().forEach(event => {
                 const li = document.createElement('li');
-                li.textContent = `${event.startStr}: ${event.extendedProps.note || 'No notes'}`;
+                li.innerText = event.startStr;
                 dateList.appendChild(li);
             });
         }
 
-        // Initial update of the date list
         updateDateList();
     }
 
@@ -160,18 +152,4 @@ document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('gallery')) {
         const galleryEl = document.getElementById('gallery');
         const images = [
-            'image1.jpg',
-            'image2.jpg',
-            'image3.jpg'
-            // Add more image paths here
-        ];
-
-        images.forEach(src => {
-            const img = document.createElement('img');
-            img.src = `images/${src}`; // Adjust path as needed
-            img.alt = 'Gallery Image';
-            img.classList.add('grid-item');
-            galleryEl.appendChild(img);
-        });
-    }
-});
+            'image1
