@@ -128,3 +128,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.body.classList.contains('date-to-remember-page')) {
+        initializeCalendar();
+    } else if (document.body.classList.contains('daily-verse-page')) {
+        fetchDailyVerse();
+    }
+});
+
+function initializeCalendar() {
+    // Existing code for initializing and managing the calendar
+}
+
+function fetchDailyVerse() {
+    // Replace with a real API endpoint
+    const apiUrl = 'https://api.quran.com/v4/verses/random';
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            const verseContent = document.getElementById('verse-content');
+            if (data && data.data) {
+                const verse = data.data.text; // Adjust based on API response structure
+                const reference = data.data.reference; // Adjust based on API response structure
+                verseContent.innerHTML = `<p>${verse}</p><footer>${reference}</footer>`;
+            } else {
+                verseContent.innerHTML = 'Unable to fetch verse. Please try again later.';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching verse:', error);
+            document.getElementById('verse-content').innerHTML = 'Unable to fetch verse. Please try again later.';
+        });
+}
+
+// Additional functions for other pages
