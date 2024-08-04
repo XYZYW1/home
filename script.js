@@ -1,87 +1,77 @@
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize FullCalendar if calendar element is present
-    if (document.getElementById('calendar')) {
-        const calendarEl = document.getElementById('calendar');
-        const modal = document.getElementById('modal');
-        const closeBtn = document.getElementById('close-btn');
-        const saveEventBtn = document.getElementById('save-event');
-        const eventTitleInput = document.getElementById('event-title');
-        const eventNoteInput = document.getElementById('event-note');
-        let currentEvent;
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarEl = document.getElementById('calendar');
+    const modal = document.getElementById('modal');
+    const closeBtn = document.getElementById('close-btn');
+    const saveBtn = document.getElementById('save-note');
+    const noteTextarea = document.getElementById('note');
+    const fileInput = document.getElementById('file');
+    const noteList = document.getElementById('note-list');
 
-        // Initialize FullCalendar
-        const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: 'dayGridMonth',
-            editable: true,
-            selectable: true,
-            events: JSON.parse(localStorage.getItem('events')) || [],
-            dateClick: function(info) {
-                currentEvent = null;
-                eventTitleInput.value = '';
-                eventNoteInput.value = '';
-                modal.style.display = 'flex';
-                document.getElementById('event-title').focus();
-            },
-            eventClick: function(info) {
-                currentEvent = info.event;
-                eventTitleInput.value = currentEvent.title;
-                eventNoteInput.value = currentEvent.extendedProps.note || '';
-                modal.style.display = 'flex';
-            }
-        });
-
-        calendar.render();
-
-        // Save event function
-        function saveEvents() {
-            const events = calendar.getEvents().map(event => ({
-                title: event.title,
-                start: event.start.toISOString(),
-                end: event.end ? event.end.toISOString() : null,
-                note: event.extendedProps.note || ''
-            }));
-            localStorage.setItem('events', JSON.stringify(events));
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        dateClick: function(info) {
+            showModal(info.dateStr);
+        },
+        events: function(fetchInfo, successCallback, failureCallback) {
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            successCallback(notes.map(note => ({
+                title: note.text,
+                start: note.date,
+                extendedProps: {
+                    file: note.file
+                }
+            })));
         }
+    });
 
-        // Save event button click
-        saveEventBtn.addEventListener('click', () => {
-            const title = eventTitleInput.value;
-            const note = eventNoteInput.value;
+    calendar.render();
 
-            if (currentEvent) {
-                currentEvent.setProp('title', title);
-                currentEvent.setExtendedProp('note', note);
-            } else {
-                calendar.addEvent({
-                    title,
-                    start: new Date(),
-                    end: new Date(),
-                    extendedProps: { note }
-                });
+    function showModal(dateStr) {
+        modal.style.display = 'flex';
+        saveBtn.dataset.date = dateStr;
+    }
+
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+
+    saveBtn.addEventListener('click', function() {
+        const dateStr = saveBtn.dataset.date;
+        const noteText = noteTextarea.value;
+        const file = fileInput.files[0];
+
+        if (noteText.trim() !== '' || file) {
+            const notes = JSON.parse(localStorage.getItem('notes')) || [];
+            notes.push({
+                date: dateStr,
+                text: noteText,
+                file: file ? URL.createObjectURL(file) : null
+            });
+            localStorage.setItem('notes', JSON.stringify(notes));
+            calendar.refetchEvents();
+            noteTextarea.value = '';
+            fileInput.value = '';
+            modal.style.display = 'none';
+            updateNoteList();
+        }
+    });
+
+    function updateNoteList() {
+        const notes = JSON.parse(localStorage.getItem('notes')) || [];
+        noteList.innerHTML = '';
+        notes.forEach(note => {
+            const li = document.createElement('li');
+            li.textContent = `${note.date}: ${note.text}`;
+            if (note.file) {
+                const img = document.createElement('img');
+                img.src = note.file;
+                img.style.maxWidth = '100px';
+                img.style.marginLeft = '10px';
+                li.appendChild(img);
             }
-            saveEvents();
-            modal.style.display = 'none';
-        });
-
-        // Close modal
-        closeBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
+            noteList.appendChild(li);
         });
     }
 
-    // Daily Verse Page
-    if (document.querySelector('.daily-verse')) {
-        const dailyVerse = document.querySelector('.daily-verse blockquote');
-        dailyVerse.textContent = "For God so loved the world, that He gave His one and only Son, that whoever believes in Him shall not perish but have eternal life. - John 3:16";
-    }
-
-    // Gallery Page
-    if (document.querySelector('.image-grid')) {
-        console.log("Gallery page loaded");
-    }
-
-    // Home Page
-    if (document.querySelector('.hero')) {
-        console.log("Home page loaded");
-    }
+    updateNoteList();
 });
