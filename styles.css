@@ -160,7 +160,15 @@ button:hover {
 
 .daily-verse blockquote {
     font-size: 1.8rem;
+    margin: 0;
 }
+
+.daily-verse footer {
+    font-size: 1.2rem;
+    margin-top: 10px;
+    color: #666;
+}
+
 
 /* Gallery */
 .image-grid {
