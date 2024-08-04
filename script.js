@@ -4,8 +4,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const calendarEl = document.getElementById('calendar');
         const modal = document.getElementById('modal');
         const closeBtn = document.getElementById('close-btn');
-        const saveNoteBtn = document.getElementById('save-note');
+        const saveDetailsBtn = document.getElementById('save-details');
         const noteInput = document.getElementById('note');
+        const imageInput = document.getElementById('image-input');
+        const dateList = document.getElementById('date-list-items');
         let currentEvent;
 
         // Initialize FullCalendar
@@ -24,9 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentEvent = {
                     id: info.event.id,
                     date: info.event.startStr,
-                    note: info.event.extendedProps.note
+                    note: info.event.extendedProps.note,
+                    image: info.event.extendedProps.image
                 };
                 noteInput.value = currentEvent.note || '';
+                if (currentEvent.image) {
+                    imageInput.dataset.image = currentEvent.image;
+                }
                 showModal();
             }
         });
@@ -43,28 +49,48 @@ document.addEventListener('DOMContentLoaded', () => {
             modal.style.display = 'none';
         });
 
-        // Save note
-        saveNoteBtn.addEventListener('click', () => {
+        // Save details
+        saveDetailsBtn.addEventListener('click', () => {
             if (currentEvent) {
                 const note = noteInput.value;
-                if (currentEvent.id) {
-                    // Update existing event
-                    calendar.getEventById(currentEvent.id).setExtendedProp('note', note);
+                const imageFile = imageInput.files[0];
+                let image = currentEvent.image || '';
+
+                if (imageFile) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        image = event.target.result;
+                        saveEvent(note, image);
+                    };
+                    reader.readAsDataURL(imageFile);
                 } else {
-                    // Add new event
-                    calendar.addEvent({
-                        id: Date.now().toString(),
-                        start: currentEvent.date,
-                        end: currentEvent.date,
-                        extendedProps: {
-                            note: note
-                        }
-                    });
+                    saveEvent(note, image);
                 }
-                saveEvents();
-                modal.style.display = 'none';
             }
         });
+
+        function saveEvent(note, image) {
+            if (currentEvent.id) {
+                // Update existing event
+                const event = calendar.getEventById(currentEvent.id);
+                event.setExtendedProp('note', note);
+                event.setExtendedProp('image', image);
+            } else {
+                // Add new event
+                calendar.addEvent({
+                    id: Date.now().toString(),
+                    start: currentEvent.date,
+                    end: currentEvent.date,
+                    extendedProps: {
+                        note: note,
+                        image: image
+                    }
+                });
+            }
+            saveEvents();
+            updateDateList();
+            modal.style.display = 'none';
+        }
 
         // Save events to local storage
         function saveEvents() {
@@ -72,7 +98,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 id: event.id,
                 start: event.startStr,
                 end: event.endStr,
-                note: event.extendedProps.note
+                note: event.extendedProps.note,
+                image: event.extendedProps.image
             }));
             localStorage.setItem('calendarEvents', JSON.stringify(events));
         }
@@ -85,10 +112,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 start: event.start,
                 end: event.end,
                 extendedProps: {
-                    note: event.note
+                    note: event.note,
+                    image: event.image
                 }
             }));
         }
+
+        // Update the list of dates to remember
+        function updateDateList() {
+            dateList.innerHTML = '';
+            const events = calendar.getEvents();
+            events.forEach(event => {
+                const li = document.createElement('li');
+                li.textContent = `${event.startStr}: ${event.extendedProps.note || 'No notes'}`;
+                dateList.appendChild(li);
+            });
+        }
+
+        // Initial update of the date list
+        updateDateList();
     }
 
     // Daily Verse Functionality
