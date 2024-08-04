@@ -1,67 +1,135 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const calendarEl = document.getElementById('calendar');
-    const modal = document.getElementById('modal');
-    const closeBtn = document.getElementById('close-btn');
-    const saveEventBtn = document.getElementById('save-event');
-    const eventTitleInput = document.getElementById('event-title');
-    const eventNoteInput = document.getElementById('event-note');
-    let currentEvent;
+    // Calendar Functionality
+    if (document.getElementById('calendar')) {
+        const calendarEl = document.getElementById('calendar');
+        const modal = document.getElementById('modal');
+        const closeBtn = document.getElementById('close-btn');
+        const saveNoteBtn = document.getElementById('save-note');
+        const noteInput = document.getElementById('note');
+        let currentEvent;
 
-    // Initialize FullCalendar
-    const calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        editable: true,
-        selectable: true,
-        events: JSON.parse(localStorage.getItem('events')) || [],
-        dateClick: function(info) {
-            currentEvent = null;
-            eventTitleInput.value = '';
-            eventNoteInput.value = '';
-            modal.style.display = 'flex';
-        },
-        eventClick: function(info) {
-            currentEvent = info.event;
-            eventTitleInput.value = currentEvent.title;
-            eventNoteInput.value = currentEvent.extendedProps.note || '';
+        // Initialize FullCalendar
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            editable: true,
+            selectable: true,
+            events: loadEvents(),
+            dateClick: function(info) {
+                currentEvent = {
+                    date: info.dateStr
+                };
+                showModal();
+            },
+            eventClick: function(info) {
+                currentEvent = {
+                    id: info.event.id,
+                    date: info.event.startStr,
+                    note: info.event.extendedProps.note
+                };
+                noteInput.value = currentEvent.note || '';
+                showModal();
+            }
+        });
+
+        calendar.render();
+
+        // Show modal
+        function showModal() {
             modal.style.display = 'flex';
         }
-    });
 
-    calendar.render();
+        // Close modal
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
 
-    // Save event function
-    function saveEvents() {
-        const events = calendar.getEvents().map(event => ({
-            title: event.title,
-            start: event.start.toISOString(),
-            end: event.end ? event.end.toISOString() : null,
-            note: event.extendedProps.note || ''
-        }));
-        localStorage.setItem('events', JSON.stringify(events));
+        // Save note
+        saveNoteBtn.addEventListener('click', () => {
+            if (currentEvent) {
+                const note = noteInput.value;
+                if (currentEvent.id) {
+                    // Update existing event
+                    calendar.getEventById(currentEvent.id).setExtendedProp('note', note);
+                } else {
+                    // Add new event
+                    calendar.addEvent({
+                        id: Date.now().toString(),
+                        start: currentEvent.date,
+                        end: currentEvent.date,
+                        extendedProps: {
+                            note: note
+                        }
+                    });
+                }
+                saveEvents();
+                modal.style.display = 'none';
+            }
+        });
+
+        // Save events to local storage
+        function saveEvents() {
+            const events = calendar.getEvents().map(event => ({
+                id: event.id,
+                start: event.startStr,
+                end: event.endStr,
+                note: event.extendedProps.note
+            }));
+            localStorage.setItem('calendarEvents', JSON.stringify(events));
+        }
+
+        // Load events from local storage
+        function loadEvents() {
+            const events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+            return events.map(event => ({
+                id: event.id,
+                start: event.start,
+                end: event.end,
+                extendedProps: {
+                    note: event.note
+                }
+            }));
+        }
     }
 
-    // Save event button click
-    saveEventBtn.addEventListener('click', () => {
-        const title = eventTitleInput.value;
-        const note = eventNoteInput.value;
+    // Daily Verse Functionality
+    if (document.getElementById('daily-verse')) {
+        // Replace with your API or static verse
+        const dailyVerseElement = document.getElementById('daily-verse');
+        
+        // Example static verse (replace with dynamic content if needed)
+        const dailyVerse = "This is a placeholder for the daily verse.";
+        dailyVerseElement.innerText = dailyVerse;
 
-        if (currentEvent) {
-            currentEvent.setProp('title', title);
-            currentEvent.setExtendedProp('note', note);
-        } else {
-            calendar.addEvent({
-                title,
-                start: new Date(),
-                end: new Date(),
-                extendedProps: { note }
+        // If you have an API to fetch the daily verse, use the following code instead:
+        /*
+        fetch('https://api.example.com/daily-verse')
+            .then(response => response.json())
+            .then(data => {
+                dailyVerseElement.innerText = data.verse;
+            })
+            .catch(error => {
+                console.error('Error fetching daily verse:', error);
+                dailyVerseElement.innerText = "Could not load the daily verse.";
             });
-        }
-        saveEvents();
-        modal.style.display = 'none';
-    });
+        */
+    }
 
-    // Close modal
-    closeBtn.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
+    // Gallery Functionality
+    if (document.getElementById('gallery')) {
+        const galleryEl = document.getElementById('gallery');
+        const images = [
+            'image1.jpg',
+            'image2.jpg',
+            'image3.jpg'
+            // Add more image paths here
+        ];
+
+        images.forEach(src => {
+            const img = document.createElement('img');
+            img.src = `images/${src}`; // Adjust path as needed
+            img.alt = 'Gallery Image';
+            img.classList.add('grid-item');
+            galleryEl.appendChild(img);
+        });
+    }
 });
