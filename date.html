@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Date to Remember - Interactive Website</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css' rel='stylesheet' />
 </head>
 <body>
     <header>
@@ -19,14 +21,24 @@
         </nav>
     </header>
 
-    <main class="date-remember">
-        <h2>Date to Remember: <span id="date-to-remember"></span></h2>
+    <main class="calendar-container">
+        <div id="calendar"></div>
+        <div class="modal" id="modal">
+            <div class="modal-content">
+                <span class="close-btn" id="close-btn">&times;</span>
+                <h2>Add Note</h2>
+                <textarea id="note" placeholder="Enter your note here..."></textarea>
+                <button id="save-note">Save Note</button>
+            </div>
+        </div>
     </main>
 
     <footer>
         <p>&copy; 2024 MySite. All rights reserved.</p>
     </footer>
 
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js'></script>
     <script src="script.js"></script>
 </body>
 </html>
