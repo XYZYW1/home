@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Calendar Functionality
+    // Handle Date to Remember Page
     if (document.getElementById('calendar')) {
         const calendarEl = document.getElementById('calendar');
         const modal = document.getElementById('modal');
@@ -16,154 +16,115 @@ document.addEventListener('DOMContentLoaded', () => {
             initialView: 'dayGridMonth',
             editable: true,
             selectable: true,
-            events: loadEvents(),
+            events: JSON.parse(localStorage.getItem('events')) || [],
             dateClick: function(info) {
-                currentEvent = {
-                    date: info.dateStr
-                };
-                showModal();
+                currentEvent = null;
+                eventTitleInput.value = '';
+                eventNoteInput.value = '';
+                eventImageInput.value = '';
+                modal.style.display = 'flex';
             },
             eventClick: function(info) {
-                currentEvent = {
-                    id: info.event.id,
-                    date: info.event.startStr,
-                    title: info.event.title,
-                    note: info.event.extendedProps.note,
-                    image: info.event.extendedProps.image
-                };
-                eventTitleInput.value = currentEvent.title || '';
-                eventNoteInput.value = currentEvent.note || '';
-                if (currentEvent.image) {
-                    eventImageInput.dataset.url = currentEvent.image;
-                }
-                showModal();
+                currentEvent = info.event;
+                eventTitleInput.value = currentEvent.title;
+                eventNoteInput.value = currentEvent.extendedProps.note || '';
+                eventImageInput.value = '';
+                modal.style.display = 'flex';
+            },
+            eventAdd: function(event) {
+                saveEvents();
+            },
+            eventChange: function(event) {
+                saveEvents();
+            },
+            eventRemove: function(event) {
+                saveEvents();
             }
         });
 
         calendar.render();
 
-        // Show modal
-        function showModal() {
-            modal.style.display = 'flex';
+        // Save event function
+        function saveEvents() {
+            const events = calendar.getEvents().map(event => ({
+                title: event.title,
+                start: event.start.toISOString(),
+                end: event.end ? event.end.toISOString() : null,
+                note: event.extendedProps.note || '',
+                image: event.extendedProps.image || ''
+            }));
+            localStorage.setItem('events', JSON.stringify(events));
+            updateDateList();
         }
+
+        // Update date list
+        function updateDateList() {
+            dateList.innerHTML = '';
+            calendar.getEvents().forEach(event => {
+                const li = document.createElement('li');
+                li.textContent = event.start.toLocaleDateString();
+                dateList.appendChild(li);
+            });
+        }
+
+        // Save event button click
+        saveEventBtn.addEventListener('click', () => {
+            const title = eventTitleInput.value;
+            const note = eventNoteInput.value;
+            const imageFile = eventImageInput.files[0];
+
+            if (currentEvent) {
+                currentEvent.setProp('title', title);
+                currentEvent.setExtendedProp('note', note);
+                if (imageFile) {
+                    const reader = new FileReader();
+                    reader.onload = function() {
+                        currentEvent.setExtendedProp('image', reader.result);
+                        saveEvents();
+                    };
+                    reader.readAsDataURL(imageFile);
+                } else {
+                    currentEvent.setExtendedProp('image', '');
+                    saveEvents();
+                }
+            } else {
+                const image = imageFile ? URL.createObjectURL(imageFile) : '';
+                calendar.addEvent({
+                    title,
+                    start: new Date(),
+                    end: new Date(),
+                    extendedProps: { note, image }
+                });
+                saveEvents();
+            }
+            modal.style.display = 'none';
+        });
 
         // Close modal
         closeBtn.addEventListener('click', () => {
             modal.style.display = 'none';
         });
-
-        // Save event
-        saveEventBtn.addEventListener('click', () => {
-            if (currentEvent) {
-                const title = eventTitleInput.value;
-                const note = eventNoteInput.value;
-                const image = eventImageInput.files[0] ? URL.createObjectURL(eventImageInput.files[0]) : eventImageInput.dataset.url;
-
-                if (currentEvent.id) {
-                    // Update existing event
-                    const event = calendar.getEventById(currentEvent.id);
-                    event.setProp('title', title);
-                    event.setExtendedProp('note', note);
-                    event.setExtendedProp('image', image);
-                } else {
-                    // Add new event
-                    calendar.addEvent({
-                        id: Date.now().toString(),
-                        title: title,
-                        start: currentEvent.date,
-                        end: currentEvent.date,
-                        extendedProps: {
-                            note: note,
-                            image: image
-                        }
-                    });
-                }
-                saveEvents();
-                updateDateList();
-                modal.style.display = 'none';
-            }
-        });
-
-        // Save events to local storage
-        function saveEvents() {
-            const events = calendar.getEvents().map(event => ({
-                id: event.id,
-                title: event.title,
-                start: event.startStr,
-                end: event.endStr,
-                note: event.extendedProps.note,
-                image: event.extendedProps.image
-            }));
-            localStorage.setItem('calendarEvents', JSON.stringify(events));
-        }
-
-        // Load events from local storage
-        function loadEvents() {
-            const events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
-            return events.map(event => ({
-                id: event.id,
-                title: event.title,
-                start: event.start,
-                end: event.end,
-                extendedProps: {
-                    note: event.note,
-                    image: event.image
-                }
-            }));
-        }
-
-        // Update the list of dates
-        function updateDateList() {
-            dateList.innerHTML = '';
-            calendar.getEvents().forEach(event => {
-                const li = document.createElement('li');
-                li.innerText = event.startStr;
-                dateList.appendChild(li);
-            });
-        }
-
-        updateDateList();
     }
 
-    // Daily Verse Functionality
-    if (document.getElementById('daily-verse')) {
-        // Replace with your API or static verse
-        const dailyVerseElement = document.getElementById('daily-verse');
-        
-        // Example static verse (replace with dynamic content if needed)
-        const dailyVerse = "This is a placeholder for the daily verse.";
-        dailyVerseElement.innerText = dailyVerse;
-
-        // If you have an API to fetch the daily verse, use the following code instead:
-        /*
-        fetch('https://api.example.com/daily-verse')
-            .then(response => response.json())
-            .then(data => {
-                dailyVerseElement.innerText = data.verse;
-            })
-            .catch(error => {
-                console.error('Error fetching daily verse:', error);
-                dailyVerseElement.innerText = "Could not load the daily verse.";
-            });
-        */
+    // Handle Daily Verse Page
+    if (document.querySelector('.daily-verse')) {
+        // Example daily verse functionality
+        // You can replace this with your own logic to fetch and display a daily verse
+        const dailyVerse = document.querySelector('.daily-verse blockquote');
+        dailyVerse.textContent = "For God so loved the world, that He gave His one and only Son, that whoever believes in Him shall not perish but have eternal life. - John 3:16";
     }
 
-    // Gallery Functionality
-    if (document.getElementById('gallery')) {
-        const galleryEl = document.getElementById('gallery');
-        const images = [
-            'image1.jpg',
-            'image2.jpg',
-            'image3.jpg'
-            // Add more image paths here
-        ];
+    // Handle Gallery Page
+    if (document.querySelector('.image-grid')) {
+        // Example gallery functionality
+        // Add more logic here if you need to load images dynamically
+        console.log("Gallery page loaded");
+    }
 
-        images.forEach(src => {
-            const img = document.createElement('img');
-            img.src = `images/${src}`; // Adjust path as needed
-            img.alt = 'Gallery Image';
-            img.classList.add('grid-item');
-            galleryEl.appendChild(img);
-        });
+    // Handle Home Page
+    if (document.querySelector('.hero')) {
+        // Example home page functionality
+        // Add more logic here if you need to customize the home page
+        console.log("Home page loaded");
     }
 });
