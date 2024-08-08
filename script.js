@@ -47,90 +47,89 @@ document.addEventListener('DOMContentLoaded', () => {
         saveNoteBtn.addEventListener('click', () => {
             if (currentEvent) {
                 const note = noteInput.value;
+
                 if (currentEvent.id) {
-                    // Update existing event
                     calendar.getEventById(currentEvent.id).setExtendedProp('note', note);
                 } else {
-                    // Add new event
-                    calendar.addEvent({
-                        id: Date.now().toString(),
-                        start: currentEvent.date,
-                        end: currentEvent.date,
-                        extendedProps: {
-                            note: note
-                        }
+                    const event = {
+                        date: currentEvent.date,
+                        note: note
+                    };
+                    saveEventToServer(event).then(() => {
+                        calendar.addEvent({
+                            id: Date.now().toString(),
+                            start: currentEvent.date,
+                            end: currentEvent.date,
+                            extendedProps: {
+                                note: note
+                            }
+                        });
                     });
                 }
-                saveEvents();
                 modal.style.display = 'none';
             }
         });
 
-        // Save events to local storage
-        function saveEvents() {
-            const events = calendar.getEvents().map(event => ({
-                id: event.id,
-                start: event.startStr,
-                end: event.endStr,
-                note: event.extendedProps.note
-            }));
-            localStorage.setItem('calendarEvents', JSON.stringify(events));
+        // Save events to the server
+        function saveEventToServer(event) {
+            return fetch('http://localhost:5000/events', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(event)
+            });
         }
 
-        // Load events from local storage
+        // Load events from the server
         function loadEvents() {
-            const events = JSON.parse(localStorage.getItem('calendarEvents')) || [];
-            return events.map(event => ({
-                id: event.id,
-                start: event.start,
-                end: event.end,
-                extendedProps: {
-                    note: event.note
-                }
-            }));
+            return fetch('http://localhost:5000/events')
+                .then(response => response.json())
+                .then(events => {
+                    return events.map(event => ({
+                        id: event._id,
+                        start: event.date,
+                        end: event.date,
+                        extendedProps: {
+                            note: event.note
+                        }
+                    }));
+                });
         }
     }
 
     // Daily Verse Functionality
     if (document.getElementById('daily-verse')) {
-        // Replace with your API or static verse
-        const dailyVerseElement = document.getElementById('daily-verse');
-        
-        // Example static verse (replace with dynamic content if needed)
-        const dailyVerse = "This is a placeholder for the daily verse.";
-        dailyVerseElement.innerText = dailyVerse;
+        fetchDailyVerse().then(verse => {
+            document.getElementById('daily-verse').innerText = verse;
+        });
+    }
 
-        // If you have an API to fetch the daily verse, use the following code instead:
-        /*
-        fetch('https://api.example.com/daily-verse')
+    // Fetch the daily verse from a backend or external API
+    function fetchDailyVerse() {
+        return fetch('http://localhost:5000/daily-verse') // Replace with your backend API URL
             .then(response => response.json())
-            .then(data => {
-                dailyVerseElement.innerText = data.verse;
-            })
-            .catch(error => {
-                console.error('Error fetching daily verse:', error);
-                dailyVerseElement.innerText = "Could not load the daily verse.";
-            });
-        */
+            .then(data => data.verse || "No verse available today");
     }
 
     // Gallery Functionality
     if (document.getElementById('gallery')) {
         const galleryEl = document.getElementById('gallery');
-        const images = [
-            'image1.jpg',
-            'image2.jpg',
-            'image3.jpg'
-            // Add more image paths here
-        ];
-
-        images.forEach(src => {
-            const img = document.createElement('img');
-            img.src = `images/${src}`; // Adjust path as needed
-            img.alt = 'Gallery Image';
-            img.classList.add('grid-item');
-            galleryEl.appendChild(img);
+        loadGalleryImages().then(images => {
+            images.forEach(src => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = 'Gallery Image';
+                img.classList.add('grid-item');
+                galleryEl.appendChild(img);
+            });
         });
     }
-});
 
+    // Load gallery images from the backend
+    function loadGalleryImages() {
+        return fetch('http://localhost:5000/gallery-images') // Replace with your backend API URL
+            .then(response => response.json())
+            .then(data => data.images || []);
+    }
+});
