@@ -13,7 +13,7 @@ mongoose.connect('mongodb://localhost:27017/yourdatabase', {
 });
 
 const EventSchema = new mongoose.Schema({
-    date: { type: String, required: true },
+    date: { type: String, required: true, unique: true },
     note: { type: String, required: true },
 });
 
@@ -29,25 +29,33 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// API to save events (notes)
+// API to save or update an event (note)
 app.post('/events', async (req, res) => {
     const { date, note } = req.body;
 
-    let event = await Event.findOne({ date });
-    if (event) {
-        event.note = note;
-    } else {
-        event = new Event({ date, note });
+    try {
+        let event = await Event.findOne({ date });
+        if (event) {
+            event.note = note;
+            await event.save();
+        } else {
+            event = new Event({ date, note });
+            await event.save();
+        }
+        res.json(event);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-    await event.save();
-
-    res.json(event);
 });
 
-// API to get events
+// API to get all events (notes)
 app.get('/events', async (req, res) => {
-    const events = await Event.find();
-    res.json(events);
+    try {
+        const events = await Event.find();
+        res.json(events);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // API to get the daily verse
