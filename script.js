@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
             selectable: true,
             events: loadEvents(),
             eventContent: function(arg) {
-                // Custom rendering of event text (note) on the calendar
                 let noteEl = document.createElement('div');
                 noteEl.innerHTML = arg.event.extendedProps.note || '';
                 return { domNodes: [noteEl] };
@@ -55,30 +54,29 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentEvent) {
                 const note = noteInput.value;
 
-                if (currentEvent.id) {
-                    // Update existing event
-                    let event = calendar.getEventById(currentEvent.id);
-                    event.setExtendedProp('note', note);
-                    event.setProp('title', note);  // Set the title for displaying the note
-                } else {
-                    // Add new event
-                    const event = {
-                        date: currentEvent.date,
-                        note: note
-                    };
-                    saveEventToServer(event).then(savedEvent => {
+                const event = {
+                    date: currentEvent.date,
+                    note: note
+                };
+
+                saveEventToServer(event).then(savedEvent => {
+                    let existingEvent = calendar.getEventById(savedEvent._id);
+                    if (existingEvent) {
+                        existingEvent.setProp('title', note);
+                        existingEvent.setExtendedProp('note', note);
+                    } else {
                         calendar.addEvent({
                             id: savedEvent._id,
-                            start: currentEvent.date,
-                            end: currentEvent.date,
-                            title: note,  // Set the title for displaying the note
+                            start: savedEvent.date,
+                            end: savedEvent.date,
+                            title: savedEvent.note,
                             extendedProps: {
-                                note: note
+                                note: savedEvent.note
                             }
                         });
-                    });
-                }
-                saveEvents(); // Save to server
+                    }
+                });
+
                 modal.style.display = 'none';
             }
         });
