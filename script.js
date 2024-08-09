@@ -14,10 +14,17 @@ document.addEventListener('DOMContentLoaded', () => {
             editable: true,
             selectable: true,
             events: loadEvents(),
+            eventContent: function(arg) {
+                // Custom rendering of event text (note) on the calendar
+                let noteEl = document.createElement('div');
+                noteEl.innerHTML = arg.event.extendedProps.note || '';
+                return { domNodes: [noteEl] };
+            },
             dateClick: function(info) {
                 currentEvent = {
                     date: info.dateStr
                 };
+                noteInput.value = ''; // Clear note input
                 showModal();
             },
             eventClick: function(info) {
@@ -49,23 +56,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 const note = noteInput.value;
 
                 if (currentEvent.id) {
-                    calendar.getEventById(currentEvent.id).setExtendedProp('note', note);
+                    // Update existing event
+                    let event = calendar.getEventById(currentEvent.id);
+                    event.setExtendedProp('note', note);
+                    event.setProp('title', note);  // Set the title for displaying the note
                 } else {
+                    // Add new event
                     const event = {
                         date: currentEvent.date,
                         note: note
                     };
-                    saveEventToServer(event).then(() => {
+                    saveEventToServer(event).then(savedEvent => {
                         calendar.addEvent({
-                            id: Date.now().toString(),
+                            id: savedEvent._id,
                             start: currentEvent.date,
                             end: currentEvent.date,
+                            title: note,  // Set the title for displaying the note
                             extendedProps: {
                                 note: note
                             }
                         });
                     });
                 }
+                saveEvents(); // Save to server
                 modal.style.display = 'none';
             }
         });
@@ -78,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(event)
-            });
+            }).then(response => response.json());
         }
 
         // Load events from the server
@@ -90,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         id: event._id,
                         start: event.date,
                         end: event.date,
+                        title: event.note,  // Use note as the title to display it
                         extendedProps: {
                             note: event.note
                         }
@@ -105,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Fetch the daily verse from a backend or external API
     function fetchDailyVerse() {
         return fetch('http://localhost:5000/daily-verse') // Replace with your backend API URL
             .then(response => response.json())
@@ -126,7 +139,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Load gallery images from the backend
     function loadGalleryImages() {
         return fetch('http://localhost:5000/gallery-images') // Replace with your backend API URL
             .then(response => response.json())
